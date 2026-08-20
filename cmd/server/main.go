@@ -10,21 +10,20 @@ import (
 )
 
 func main() {
-	// connectionString := "amqp://guest:guest@127.0.0.1:5672/"
-	connectionString := "amqp://guest:guest@localhost:5672/"
-	connectionPointer, err := amqp.Dial(connectionString)
+	const rabbitConnString = "amqp://guest:guest@localhost:5672/"
+
+	conn, err := amqp.Dial(rabbitConnString)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("could not connect to RabbitMQ: %v", err)
 	}
-	defer connectionPointer.Close()
+	defer conn.Close()
+	fmt.Println("Peril game server connected to RabbitMQ!")
 
-	fmt.Println("Starting Peril server...")
-
+	// wait for ctrl + c
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt)
 	<-signalChan
-	
-	fmt.Println("\nClosing Peril server...")
+	fmt.Println("\nRabbitMQ connection closed.")
 }
 
 
