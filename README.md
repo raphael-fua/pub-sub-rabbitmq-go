@@ -12,8 +12,8 @@ Peril is inspired by the game 'Risk'.
 - [x] 5  | L9: Durable         
         
 ## CH4: Subscribers & Routing
-- [] 10 | L1: Consumers       
-- [] 8  | L3: Routing Patterns
+- [x] 10 | L1: Consumers       
+- [x] 8  | L3: Routing Patterns
 
 ## CH5: Delivery
 - [] 3  | L1: Dead Letter
