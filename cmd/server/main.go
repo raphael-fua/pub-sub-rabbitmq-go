@@ -15,6 +15,10 @@ import (
 func main() {
 	const rabbitConnString = "amqp://guest:guest@localhost:5672/"
 
+	// var game_logs pubsub.SimpleQueueType = pubsub.DurableQueue
+
+	
+
 	conn, err := amqp.Dial(rabbitConnString)
 	if err != nil {
 		log.Fatalf("could not connect to RabbitMQ: %v", err)
@@ -23,7 +27,13 @@ func main() {
 	fmt.Println("Peril game server connected to RabbitMQ!")
 	gamelogic.PrintServerHelp()
 
-	ch, err := conn.Channel()
+	ch, _, err := pubsub.DeclareAndBind(
+		conn,
+		routing.ExchangePerilTopic,
+		"game_logs",
+		"game_logs.*",
+		pubsub.DurableQueue,
+	)
 	if err != nil {
 		log.Fatalf("could not create channel from connection: %v", err)
 	}
@@ -35,6 +45,14 @@ func main() {
 				continue
 			} 
 			switch words[0] {
+
+			case "help":
+				log.Print("`help` server command")
+				log.Println("Possible commands:")
+				log.Println("  * help")
+				log.Println("  * pause")
+				log.Println("  * quit")
+				log.Println("  * resume")
 			case "pause":
 				log.Print("`pause` server command")
 				pubsub.PublishJSON(

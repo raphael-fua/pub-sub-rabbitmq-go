@@ -5,10 +5,10 @@ This is the starter code used in Boot.dev's [Learn Pub/Sub](https://learn.boot.d
 Peril is inspired by the game 'Risk'.
 
 ## CH3: Publishers & Queues
-- [] 7  | L4: Transient Queues
-- [] 5  | L5: Decoupling      
-- [] 3  | L6: REPL            
-- [] 3  | L8: Exchange        
+- [x] 7  | L4: Transient Queues
+- [x] 5  | L5: Decoupling      
+- [x] 3  | L6: REPL            
+- [x] 3  | L8: Exchange        
 - [] 5  | L9: Durable         
         
 ## CH4: Subscribers & Routing
