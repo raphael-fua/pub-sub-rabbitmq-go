@@ -9,7 +9,6 @@ import (
 
 func PublishJSON[T any](ch *amqp.Channel, exchange, key string, val T) error {
 
-	// b := make([]byte, 32)
 	jsonBytes, err := json.Marshal(val)
 	if err != nil {
 		return err

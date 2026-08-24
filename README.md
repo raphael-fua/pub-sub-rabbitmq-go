@@ -9,7 +9,7 @@ Peril is inspired by the game 'Risk'.
 - [x] 5  | L5: Decoupling      
 - [x] 3  | L6: REPL            
 - [x] 3  | L8: Exchange        
-- [] 5  | L9: Durable         
+- [x] 5  | L9: Durable         
         
 ## CH4: Subscribers & Routing
 - [] 10 | L1: Consumers       

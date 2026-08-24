@@ -20,6 +20,11 @@ func main() {
 		log.Fatalf("could not connect to RabbitMQ: %v", err)
 	}
 	defer conn.Close()
+	publishCh, err := conn.Channel()
+	if err != nil {
+		log.Fatalf("error in `conn.Channel`: %v", err)
+	}
+	defer publishCh.Close()
 	fmt.Println("Peril client connected to RabbitMQ!")
 
 	username, err := gamelogic.ClientWelcome()
@@ -27,16 +32,25 @@ func main() {
 		log.Fatalf("could not welcome client: %v", err)
 	}
 
-	_, _, err = pubsub.DeclareAndBind(
+	gs := gamelogic.NewGameState(username)
+	err = pubsub.SubscribeJSON(
 		conn,
 		routing.ExchangePerilDirect, routing.PauseKey + "." + username, routing.PauseKey,
 		pubsub.TransientQueue,
+		handlerPause(gs),
 	)
 	if err != nil {
-		log.Fatalf("could not create channel from connection: %v", err)
+		log.Fatalf("error in `pubsub.SubscribeJSON`: %v", err)
 	}
-
-	gamestate := gamelogic.NewGameState(username)
+	err = pubsub.SubscribeJSON(
+		conn,
+		routing.ExchangePerilTopic, routing.ArmyMovesPrefix + "." + username, routing.ArmyMovesPrefix + ".*",
+		pubsub.TransientQueue,
+		handlerMove(gs),
+	)
+	if err != nil {
+		log.Fatalf("error in `pubsub.SubscribeJSON`: %v", err)
+	}
 	gameLoop:
 		for {
 			words := gamelogic.GetInput()
@@ -46,19 +60,30 @@ func main() {
 			switch words[0] {
 			case "spawn":
 				log.Print("`spawn` client command")
-				err = gamestate.CommandSpawn(words)
+				err = gs.CommandSpawn(words)
                 if err != nil {
-					fmt.Printf("`gamestate.CommandSpawn` error: %v", err)
+					fmt.Printf("`gs.CommandSpawn` error: %v", err)
 				}
 			case "move":
 				log.Print("`move` client command")
-				_, err := gamestate.CommandMove(words)
+				mv, err := gs.CommandMove(words)
 				if err != nil {
-					fmt.Printf("`gamestate.CommandMove` error: %v", err)
+					fmt.Printf("`gs.CommandMove` error: %v", err)
+					continue
 				}
+				err = pubsub.PublishJSON(
+					publishCh,
+					routing.ExchangePerilTopic, routing.ArmyMovesPrefix + "." + username,
+					mv,
+				)
+				if err != nil {
+					log.Printf("error in `pubsub.PublishJSON`: %v", err)
+					continue
+				}
+				log.Print("`move` published successfully")
 			case "status":
 				log.Print("`status` client command")
-				gamestate.CommandStatus()
+				gs.CommandStatus()
 			case "help":
 				log.Print("`help` client command")
 				gamelogic.PrintClientHelp()
