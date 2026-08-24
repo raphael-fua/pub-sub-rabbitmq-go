@@ -21,11 +21,13 @@ func SubscribeJSON[T any](
 	exchange, queueName, key string,
 	queueType SimpleQueueType,  // an enum to represent "durable" or "transient"
 	handler func(T) AckType,
+	t amqp.Table,
 ) error {
 	ch, _, err := DeclareAndBind(
 		conn,
 		exchange, queueName, key,
 		queueType,
+		t,
 	)	
 	if err != nil {
 		return err

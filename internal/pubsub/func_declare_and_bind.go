@@ -16,6 +16,7 @@ func DeclareAndBind(
 	conn *amqp.Connection,
 	exchange, queueName, key string,
 	queueType SimpleQueueType,
+	t amqp.Table,
 ) (*amqp.Channel, amqp.Queue, error) {
 	ch, err := conn.Channel()
 	if err != nil {
@@ -33,8 +34,8 @@ func DeclareAndBind(
 		)
 	}
 
-	t := amqp.Table{}
-	t["x-dead-letter-exchange"] = "peril_dlx"
+	// t := amqp.Table{}
+	// t["x-dead-letter-exchange"] = "peril_dlx"
 
 	q, err := ch.QueueDeclare(
 		queueName,

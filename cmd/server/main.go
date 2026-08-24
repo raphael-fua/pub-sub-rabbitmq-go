@@ -27,12 +27,15 @@ func main() {
 	fmt.Println("Peril game server connected to RabbitMQ!")
 	gamelogic.PrintServerHelp()
 
+	t := amqp.Table{}
+	t["x-dead-letter-exchange"] = "peril_dlx"
 	ch, _, err := pubsub.DeclareAndBind(
 		conn,
 		routing.ExchangePerilTopic,
 		"game_logs",
 		"game_logs.*",
 		pubsub.DurableQueue,
+		t,
 	)
 	if err != nil {
 		log.Fatalf("could not create channel from connection: %v", err)
@@ -55,7 +58,7 @@ func main() {
 				log.Println("  * resume")
 			case "pause":
 				log.Print("`pause` server command")
-				pubsub.PublishJSON(
+				err = pubsub.PublishJSON(
 					ch,
 					routing.ExchangePerilDirect,
 					routing.PauseKey,
@@ -63,9 +66,12 @@ func main() {
 						IsPaused: true,
 					},
 				)
+				if err != nil {
+					log.Printf("error is `pubsub.PublishJSON`: %v", err)
+				}
 			case "resume":
 				log.Print("`resume` server command")
-				pubsub.PublishJSON(
+				err = pubsub.PublishJSON(
 					ch,
 					routing.ExchangePerilDirect,
 					routing.PauseKey,
@@ -73,6 +79,9 @@ func main() {
 						IsPaused: false,
 					},
 				)
+				if err != nil {
+					log.Printf("error is `pubsub.PublishJSON`: %v", err)
+				}
 			case "quit":
 				log.Print("`quit` server command")
 				break gameLoop

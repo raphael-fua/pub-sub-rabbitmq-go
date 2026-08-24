@@ -16,10 +16,10 @@ Peril is inspired by the game 'Risk'.
 - [x] 8  | L3: Routing Patterns
 
 ## CH5: Delivery
-- [] 3  | L1: Dead Letter
-- [] 6  | L2: Ack & Nack
-- [] 7  | L3: Dead Letter Queue
-- [] 10 | L5: Nack Requeue
+- [x] 3  | L1: Dead Letter
+- [x] 6  | L2: Ack & Nack
+- [x] 7  | L3: Dead Letter Queue
+- [x] 10 | L5: Nack Requeue
 - [] 3  | L6: Nack Requeue Fix
 
 ## CH6: Data Serialization
