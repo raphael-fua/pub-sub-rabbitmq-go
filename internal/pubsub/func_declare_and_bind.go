@@ -12,7 +12,6 @@ const (
 	TransientQueue
 )
 
-
 func DeclareAndBind(
 	conn *amqp.Connection,
 	exchange, queueName, key string,
@@ -34,7 +33,17 @@ func DeclareAndBind(
 		)
 	}
 
-	q, err := ch.QueueDeclare(queueName, isDurable, !isDurable, !isDurable, false, nil)
+	t := amqp.Table{}
+	t["x-dead-letter-exchange"] = "peril_dlx"
+
+	q, err := ch.QueueDeclare(
+		queueName,
+		isDurable,
+		!isDurable,
+		!isDurable,
+		false,
+		t,
+	)
 	if err != nil {
 		return nil, amqp.Queue{}, err
 	}
