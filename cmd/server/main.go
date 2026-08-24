@@ -36,7 +36,7 @@ func main() {
 			} 
 			switch words[0] {
 			case "pause":
-				log.Print("sending pause message")
+				log.Print("`pause` server command")
 				pubsub.PublishJSON(
 					ch,
 					routing.ExchangePerilDirect,
@@ -46,7 +46,7 @@ func main() {
 					},
 				)
 			case "resume":
-				log.Print("sending resume message")
+				log.Print("`resume` server command")
 				pubsub.PublishJSON(
 					ch,
 					routing.ExchangePerilDirect,
@@ -56,11 +56,10 @@ func main() {
 					},
 				)
 			case "quit":
-				log.Print("exiting")
+				log.Print("`quit` server command")
 				break gameLoop
 			default:
-				log.Print("cannot understand command")
-				continue
+				log.Print("unknown server command")
 			}
 		}
 
