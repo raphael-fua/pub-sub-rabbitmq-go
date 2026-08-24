@@ -6,6 +6,9 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/bootdotdev/learn-pub-sub-starter/internal/gamelogic"
+	"github.com/bootdotdev/learn-pub-sub-starter/internal/pubsub"
+	"github.com/bootdotdev/learn-pub-sub-starter/internal/routing"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -18,6 +21,48 @@ func main() {
 	}
 	defer conn.Close()
 	fmt.Println("Peril game server connected to RabbitMQ!")
+	gamelogic.PrintServerHelp()
+
+	ch, err := conn.Channel()
+	if err != nil {
+		log.Fatalf("could not create channel from connection: %v", err)
+	}
+
+	gameLoop:
+		for {
+			words := gamelogic.GetInput()
+			if len(words) == 0 {
+				continue
+			} 
+			switch words[0] {
+			case "pause":
+				log.Print("sending pause message")
+				pubsub.PublishJSON(
+					ch,
+					routing.ExchangePerilDirect,
+					routing.PauseKey,
+					routing.PlayingState{
+						IsPaused: true,
+					},
+				)
+			case "resume":
+				log.Print("sending resume message")
+				pubsub.PublishJSON(
+					ch,
+					routing.ExchangePerilDirect,
+					routing.PauseKey,
+					routing.PlayingState{
+						IsPaused: false,
+					},
+				)
+			case "quit":
+				log.Print("exiting")
+				break gameLoop
+			default:
+				log.Print("cannot understand command")
+				continue
+			}
+		}
 
 	// wait for ctrl + c
 	signalChan := make(chan os.Signal, 1)
